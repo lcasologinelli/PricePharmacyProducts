@@ -1,12 +1,12 @@
-package com.example.pricepharmacyproducts.pharmacy.mapper;
+package com.example.pricepharmacyproducts.pharmacy;
 
-import com.example.pricepharmacyproducts.pharmacy.dto.PharmacyDto;
-import com.example.pricepharmacyproducts.pharmacy.dto.PharmacyResponseDto;
-import com.example.pricepharmacyproducts.pharmacy.entity.Pharmacy;
-import com.example.pricepharmacyproducts.product.entity.Product;
-import com.example.pricepharmacyproducts.product.service.ProductService;
-import com.example.pricepharmacyproducts.sale.entity.Sale;
-import com.example.pricepharmacyproducts.sale.key.SaleKey;
+import com.example.pricepharmacyproducts.pharmacy.PharmacyDto;
+import com.example.pricepharmacyproducts.pharmacy.PharmacyResponseDto;
+import com.example.pricepharmacyproducts.pharmacy.Pharmacy;
+import com.example.pricepharmacyproducts.product.Product;
+import com.example.pricepharmacyproducts.product.ProductService;
+import com.example.pricepharmacyproducts.sale.Sale;
+import com.example.pricepharmacyproducts.sale.SaleKey;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -52,6 +52,10 @@ public class PharmacyMapper {
                         productService.findProductById(currentProductId),
                         prices.get(i) ));
             }
+        }
+        else
+        {
+            throw new IllegalArgumentException("products_id and sales should have the same size");
         }
         return sales;
 

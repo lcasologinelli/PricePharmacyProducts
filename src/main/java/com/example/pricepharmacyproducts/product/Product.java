@@ -1,6 +1,6 @@
-package com.example.pricepharmacyproducts.product.entity;
+package com.example.pricepharmacyproducts.product;
 
-import com.example.pricepharmacyproducts.sale.entity.Sale;
+import com.example.pricepharmacyproducts.sale.Sale;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

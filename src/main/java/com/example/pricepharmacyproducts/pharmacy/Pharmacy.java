@@ -1,14 +1,10 @@
-package com.example.pricepharmacyproducts.pharmacy.entity;
+package com.example.pricepharmacyproducts.pharmacy;
 
-import com.example.pricepharmacyproducts.product.entity.Product;
-import com.example.pricepharmacyproducts.sale.entity.Sale;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.example.pricepharmacyproducts.sale.Sale;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor

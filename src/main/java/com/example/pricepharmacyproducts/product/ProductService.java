@@ -1,9 +1,9 @@
-package com.example.pricepharmacyproducts.product.service;
+package com.example.pricepharmacyproducts.product;
 
-import com.example.pricepharmacyproducts.product.dto.ProductDto;
-import com.example.pricepharmacyproducts.product.entity.Product;
-import com.example.pricepharmacyproducts.product.mapper.ProductMapper;
-import com.example.pricepharmacyproducts.product.repository.ProductRepository;
+import com.example.pricepharmacyproducts.product.ProductDto;
+import com.example.pricepharmacyproducts.product.Product;
+import com.example.pricepharmacyproducts.product.ProductMapper;
+import com.example.pricepharmacyproducts.product.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class ProductService {
     }
 
     public Product findProductById(Integer id){
-        return productRepository.findById(id).orElse(new Product());
+        return productRepository.findById(id).orElseThrow(()-> new RuntimeException("No Product by ID: "+ id));
     }
 
     public List<Product> findProductByName(String name){

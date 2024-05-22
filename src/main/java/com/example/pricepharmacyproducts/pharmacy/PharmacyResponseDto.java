@@ -1,4 +1,4 @@
-package com.example.pricepharmacyproducts.pharmacy.dto;
+package com.example.pricepharmacyproducts.pharmacy;
 
 import java.util.List;
 

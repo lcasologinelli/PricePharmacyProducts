@@ -1,11 +1,11 @@
-package com.example.pricepharmacyproducts.pharmacy.service;
+package com.example.pricepharmacyproducts.pharmacy;
 
 
-import com.example.pricepharmacyproducts.pharmacy.dto.PharmacyDto;
-import com.example.pricepharmacyproducts.pharmacy.entity.Pharmacy;
-import com.example.pricepharmacyproducts.pharmacy.mapper.PharmacyMapper;
-import com.example.pricepharmacyproducts.pharmacy.repository.PharmacyRepository;
-import com.example.pricepharmacyproducts.product.repository.ProductRepository;
+import com.example.pricepharmacyproducts.pharmacy.PharmacyDto;
+import com.example.pricepharmacyproducts.pharmacy.Pharmacy;
+import com.example.pricepharmacyproducts.pharmacy.PharmacyMapper;
+import com.example.pricepharmacyproducts.pharmacy.PharmacyRepository;
+import com.example.pricepharmacyproducts.product.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class PharmacyService {
 
     public Pharmacy savePharmacy(PharmacyDto pharmacyDto){
         if(pharmacyDto.productID().size() != pharmacyDto.price().size()){
-            throw new IllegalArgumentException("The list containing the product id" +
+            throw new RuntimeException("The list containing the product id" +
                     " and the one containing the prices must have the same length");
         }
 
@@ -37,7 +37,7 @@ public class PharmacyService {
     }
 
     public Pharmacy findPharmacyById(Integer id){
-        return pharmacyRepository.findById(id).orElse(new Pharmacy());
+        return pharmacyRepository.findById(id).orElseThrow(()-> new RuntimeException("No Pharmacy by ID: "+ id));
     }
 
     public List<Pharmacy> findPharmacyByName(String name){

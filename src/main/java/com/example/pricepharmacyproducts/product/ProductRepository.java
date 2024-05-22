@@ -1,7 +1,6 @@
-package com.example.pricepharmacyproducts.product.repository;
+package com.example.pricepharmacyproducts.product;
 
-import com.example.pricepharmacyproducts.pharmacy.entity.Pharmacy;
-import com.example.pricepharmacyproducts.product.entity.Product;
+import com.example.pricepharmacyproducts.product.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

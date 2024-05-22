@@ -1,8 +1,7 @@
-package com.example.pricepharmacyproducts.sale.entity;
+package com.example.pricepharmacyproducts.sale;
 
-import com.example.pricepharmacyproducts.pharmacy.entity.Pharmacy;
-import com.example.pricepharmacyproducts.product.entity.Product;
-import com.example.pricepharmacyproducts.sale.key.SaleKey;
+import com.example.pricepharmacyproducts.pharmacy.Pharmacy;
+import com.example.pricepharmacyproducts.product.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
