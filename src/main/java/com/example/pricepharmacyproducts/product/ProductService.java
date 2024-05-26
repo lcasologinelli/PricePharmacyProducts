@@ -1,5 +1,6 @@
 package com.example.pricepharmacyproducts.product;
 
+import com.example.pricepharmacyproducts.exception.IdNotFoundException;
 import com.example.pricepharmacyproducts.product.ProductDto;
 import com.example.pricepharmacyproducts.product.Product;
 import com.example.pricepharmacyproducts.product.ProductMapper;
@@ -19,9 +20,14 @@ public class ProductService {
         this.productMapper = productMapper;
     }
 
-    public Product saveProduct(ProductDto productDto){
-        Product newProduct = productMapper.productDtoToProduct(productDto);
-        return productRepository.save(newProduct);
+    public Product saveProduct(Product product){
+//        Product newProduct = productMapper.productDtoToProduct(productDto);
+        return productRepository.save(product);
+    }
+
+    public Product updateProduct(Product product){
+        return productRepository.save(product);
+
     }
 
     public List<Product> findAllProducts(){
@@ -29,7 +35,7 @@ public class ProductService {
     }
 
     public Product findProductById(Integer id){
-        return productRepository.findById(id).orElseThrow(()-> new RuntimeException("No Product by ID: "+ id));
+        return productRepository.findById(id).orElseThrow(()-> new IdNotFoundException("No Product by ID: "+ id));
     }
 
     public List<Product> findProductByName(String name){

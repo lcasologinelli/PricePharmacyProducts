@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xlmns:th="https://www.thymeleaf.org/" xmlns:xlmns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Products Management System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
+                <h1 class="text-center"> Create new Product</h1>
+                <div class="card-body">
+                    <form th:action="@{/products}" th:object="${product}" method="post">
+                        <div class="form-group">
+                            <label>Product Name
+                                <input
+                                        type="text"
+                                        name="product_name"
+                                        th:field="*{name}"
+                                        class="form-control"
+                                        placeholder="Enter the product name"
+                                />
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Product Format
+                                <input
+                                        type="text"
+                                        name="product_format"
+                                        th:field="*{format}"
+                                        class="form-control"
+                                        placeholder="Enter the product format"
+                                />
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Product Producer
+                                <input
+                                        type="text"
+                                        name="product_producer"
+                                        th:field="*{producer}"
+                                        class="form-control"
+                                        placeholder="Enter the product producer"
+                                />
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Product Category
+                                <input
+                                        type="text"
+                                        name="product_category"
+                                        th:field="*{category}"
+                                        class="form-control"
+                                        placeholder="Enter the product category"
+                                />
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Product Dose
+                                <input
+                                        type="text"
+                                        name="product_dose"
+                                        th:field="*{dose}"
+                                        class="form-control"
+                                        placeholder="Enter the product dose"
+                                />
+                            </label>
+                        </div>
+
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                Submit
+                            </button>
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

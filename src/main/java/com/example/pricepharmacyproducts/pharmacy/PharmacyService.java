@@ -1,10 +1,7 @@
 package com.example.pricepharmacyproducts.pharmacy;
 
 
-import com.example.pricepharmacyproducts.pharmacy.PharmacyDto;
-import com.example.pricepharmacyproducts.pharmacy.Pharmacy;
-import com.example.pricepharmacyproducts.pharmacy.PharmacyMapper;
-import com.example.pricepharmacyproducts.pharmacy.PharmacyRepository;
+import com.example.pricepharmacyproducts.exception.IdNotFoundException;
 import com.example.pricepharmacyproducts.product.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +34,7 @@ public class PharmacyService {
     }
 
     public Pharmacy findPharmacyById(Integer id){
-        return pharmacyRepository.findById(id).orElseThrow(()-> new RuntimeException("No Pharmacy by ID: "+ id));
+        return pharmacyRepository.findById(id).orElseThrow(()-> new IdNotFoundException("No Pharmacy by ID: "+ id));
     }
 
     public List<Pharmacy> findPharmacyByName(String name){
