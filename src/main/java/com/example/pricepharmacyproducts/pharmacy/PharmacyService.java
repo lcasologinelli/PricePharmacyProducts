@@ -6,6 +6,7 @@ import com.example.pricepharmacyproducts.product.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PharmacyService {
@@ -20,21 +21,19 @@ public class PharmacyService {
     }
 
     public Pharmacy savePharmacy(PharmacyDto pharmacyDto){
-        if(pharmacyDto.productID().size() != pharmacyDto.price().size()){
-            throw new RuntimeException("The list containing the product id" +
-                    " and the one containing the prices must have the same length");
-        }
 
-        Pharmacy newPharmacy = pharmacyMapper.PharmacyDtoToPharmacy(pharmacyDto);
+        Pharmacy newPharmacy = pharmacyMapper.toPharmacy(pharmacyDto);
         return pharmacyRepository.save(newPharmacy);
     }
 
-    public List<Pharmacy> findAllPharmacies(){
-        return pharmacyRepository.findAll();
+    public List<PharmacyDto> findAllPharmacies(){
+        return pharmacyRepository.findAll()
+                .stream()
+                .map(pharmacy -> pharmacyMapper.toDto(pharmacy)).collect(Collectors.toList());
     }
 
-    public Pharmacy findPharmacyById(Integer id){
-        return pharmacyRepository.findById(id).orElseThrow(()-> new IdNotFoundException("No Pharmacy by ID: "+ id));
+    public PharmacyDto findPharmacyById(Integer id){
+        return pharmacyMapper.toDto(pharmacyRepository.findById(id).orElseThrow(()-> new IdNotFoundException("No Pharmacy by ID: "+ id)));
     }
 
     public List<Pharmacy> findPharmacyByName(String name){
@@ -45,4 +44,7 @@ public class PharmacyService {
         pharmacyRepository.deleteById(id);
     }
 
+    public void updatePharmacy(PharmacyDto pharmacyDto) {
+        pharmacyRepository.save(pharmacyMapper.toPharmacy(pharmacyDto));
+    }
 }
