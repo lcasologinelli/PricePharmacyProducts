@@ -1,22 +1,26 @@
 package com.example.pricepharmacyproducts.product;
 
+import com.example.pricepharmacyproducts.sale.SaleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/products")
 public class ProductController {
 
     ProductService productService;
+    SaleService saleService;
 
-
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, SaleService saleService) {
         this.productService = productService;
+        this.saleService = saleService;
     }
+
 
     @GetMapping("/newProduct")
     public String createProductForm(Model model){

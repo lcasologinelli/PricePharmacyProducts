@@ -58,6 +58,7 @@ public class PharmacyController {
             @ModelAttribute("pharmacyDto") PharmacyDto pharmacyDto){
 
         PharmacyDto findPharmacyDto = pharmacyService.findPharmacyById(id);
+        findPharmacyDto.setWebAddress(pharmacyDto.getWebAddress());
         findPharmacyDto.setCity(pharmacyDto.getCity());
         findPharmacyDto.setName(pharmacyDto.getName());
         findPharmacyDto.setSales(pharmacyDto.getSales());

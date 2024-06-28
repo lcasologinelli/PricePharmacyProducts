@@ -5,7 +5,6 @@ import com.example.pricepharmacyproducts.sale.Sale;
 import com.example.pricepharmacyproducts.sale.SaleDto;
 import com.example.pricepharmacyproducts.sale.SaleKey;
 import com.example.pricepharmacyproducts.sale.SaleMapper;
-import com.example.pricepharmacyproducts.user.Order;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;

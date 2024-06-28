@@ -2,7 +2,7 @@ package com.example.pricepharmacyproducts.sale;
 
 import com.example.pricepharmacyproducts.pharmacy.Pharmacy;
 import com.example.pricepharmacyproducts.product.Product;
-import com.example.pricepharmacyproducts.user.Order;
+import com.example.pricepharmacyproducts.order.Order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,15 +41,7 @@ public class Sale {
         this.quantity = quantity;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "sale_order",
-            joinColumns = {
-                    @JoinColumn(name = "pharmacy_id"),
-                    @JoinColumn(name = "product_id")
-            },
-            inverseJoinColumns = @JoinColumn(name = "order_id")
-    )
+    @ManyToMany(mappedBy = "saleList", fetch = FetchType.LAZY)
     private List<Order> orders;
 
     private Float price;

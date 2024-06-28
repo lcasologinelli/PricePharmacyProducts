@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org/">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Best Pharmacy Order</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+
+<div th:insert="~{parts/navbar::navigation}"></div>
+<div class="container">
+    <div class="row">
+        <h1> Best Pharmacy Order </h1>
+    </div>
+    <table class="table thead-dark">
+        <thead class="table-dark">
+        <tr>
+            <th>Pharmacy</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Cost</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="dto : ${findBestPharmacy}">
+            <td>
+                <p class="d-inline-flex gap-1">
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapsePharmacy'+${dto.pharmacy.pharmacy_id}" aria-expanded="false" th:aria-controls="'collapsePharmacy'+${dto.pharmacy.pharmacy_id}">
+                        Show Pharmacy
+                    </button>
+                </p>
+                <div class="collapse" th:id="'#collapsePharmacy'+${dto.pharmacy.pharmacy_id}">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p class="card-text">Name: <span th:text="${dto.pharmacy.name}"></span></p>
+                            <p class="card-text">Web Address: <span th:text="${dto.pharmacy.webAddress}"></span></p>
+                            <p class="card-text">City: <span th:text="${dto.pharmacy.city}"></span></p>
+                            <p class="card-text">Shipping Fees: <span th:text="${dto.pharmacy.shippingFees}"></span></p>
+                            <p class="card-text">Free Shipping: <span th:text="${dto.pharmacy.freeShipping}"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <p class="d-inline-flex gap-1">
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapseProduct'+${dto.product.product_id}" aria-expanded="false" th:aria-controls="'collapseProduct'+${dto.product.product_id}">
+                        Show Product
+                    </button>
+                </p>
+                <div class="collapse" th:id="'#collapseProduct'+${dto.product.product_id}">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p class="card-text">Name: <span th:text="${dto.product.name}"></span></p>
+                            <p class="card-text">Format: <span th:text="${dto.product.format}"></span></p>
+                            <p class="card-text">Producer: <span th:text="${dto.product.producer}"></span></p>
+                            <p class="card-text">Category: <span th:text="${dto.product.category}"></span></p>
+                            <p class="card-text">Dose: <span th:text="${dto.product.dose}"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td th:text="${dto.quantity}"></td>
+            <td th:text="${dto.cost}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
