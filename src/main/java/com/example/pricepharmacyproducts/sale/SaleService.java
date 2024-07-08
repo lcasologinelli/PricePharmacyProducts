@@ -65,6 +65,18 @@ public class SaleService {
         return maxQuantityProducts;
     }
 
+    public List<Product> findProductsByName(String name) {
+        List<Product> matchingProducts = new ArrayList<>();
+        List<Sale> allSales = saleRepository.findAll();
+
+        for (Sale sale : allSales) {
+            if (sale.getProduct().getName().toLowerCase().contains(name.toLowerCase()) && sale.getQuantity() > 0) {
+                matchingProducts.add(sale.getProduct());
+            }
+        }
+        return matchingProducts;
+    }
+
     public void saveSale(Sale sale) {
         saleRepository.save(sale);
     }

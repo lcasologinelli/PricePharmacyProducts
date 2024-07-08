@@ -30,20 +30,30 @@ public class SaleController {
     }
 
     @GetMapping("/home")
-    public String productHomePage(Model model, @RequestParam(value = "orderAdded", required = false) Boolean orderAdded) {
-        List<Product> availableProducts = saleService.findAvailableProducts();
-        Map<Product, Integer> productMaxQuantityMap = new LinkedHashMap<>(); // Utilizza LinkedHashMap per preservare l'ordine
+    public String productHomePage(Model model,
+                                  @RequestParam(value = "orderAdded", required = false) Boolean orderAdded,
+                                  @RequestParam(value = "searchName", required = false) String searchName) {
+        List<Product> availableProducts;
 
+        if (searchName != null && !searchName.isEmpty()) {
+            availableProducts = saleService.findProductsByName(searchName);
+            model.addAttribute("searchName", searchName);
+        } else {
+            availableProducts = saleService.findAvailableProducts();
+        }
+
+        Map<Product, Integer> productMaxQuantityMap = new LinkedHashMap<>();
         List<Integer> maxQuantities = saleService.findMaxQuantity(availableProducts);
         int index = 0;
         for (Product product : availableProducts) {
             productMaxQuantityMap.put(product, maxQuantities.get(index));
             index++;
         }
+
         model.addAttribute("productMaxQuantityMap", productMaxQuantityMap);
         model.addAttribute("orderAdded", orderAdded);
         model.addAttribute("orderProductIds", orderService.getAllOrderProductIds());
-        model.addAttribute("productQuantities", productQuantities); // Aggiungi la mappa al modello
+        model.addAttribute("productQuantities", productQuantities);
         return "home";
     }
 

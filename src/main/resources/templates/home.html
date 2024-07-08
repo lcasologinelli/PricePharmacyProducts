@@ -17,6 +17,13 @@
     <div th:if="${orderAdded}" class="alert alert-success" role="alert">
         Ordine aggiunto
     </div>
+    <!-- Form di ricerca -->
+    <form th:action="@{/sales/home}" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search by name" name="searchName" th:value="${searchName}">
+            <button class="btn btn-outline-secondary" type="submit">Search</button>
+        </div>
+    </form>
     <table class="table thead-dark">
         <thead class="table-dark">
         <tr>
