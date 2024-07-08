@@ -22,9 +22,11 @@ import java.util.stream.Collectors;
 public class PharmacyController {
 
     private final PharmacyService pharmacyService;
+    private final PharmacyMapper pharmacyMapper;
 
-    public PharmacyController(PharmacyService pharmacyService) {
+    public PharmacyController(PharmacyService pharmacyService, PharmacyMapper pharmacyMapper) {
         this.pharmacyService = pharmacyService;
+        this.pharmacyMapper = pharmacyMapper;
     }
 
     @GetMapping("/newPharmacy")
@@ -42,11 +44,19 @@ public class PharmacyController {
     }
 
     @GetMapping
-    public String findAllPharmacies(Model model){
-        model.addAttribute("pharmacy_list",pharmacyService.findAllPharmacies());
+    public String findAllPharmacies(Model model, @RequestParam(value = "keyword", required = false) String keyword) {
+        List<PharmacyDto> pharmacyList;
+        if (keyword != null && !keyword.isEmpty()) {
+            pharmacyList = pharmacyService.findPharmacyByName(keyword)
+                    .stream()
+                    .map(pharmacyMapper::toDto).collect(Collectors.toList());
+        } else {
+            pharmacyList = pharmacyService.findAllPharmacies();
+        }
+        model.addAttribute("pharmacy_list", pharmacyList);
+        model.addAttribute("keyword", keyword);
         return "pharmacy_list";
     }
-
     @GetMapping("/edit/{id}")
     public String editPharmacyForm(@PathVariable Integer id, Model model){
         model.addAttribute("pharmacyDto",pharmacyService.findPharmacyById(id));

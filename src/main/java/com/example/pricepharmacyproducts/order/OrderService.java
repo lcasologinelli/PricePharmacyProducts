@@ -51,4 +51,8 @@ public class OrderService {
                 orderRepository.deleteById(order.getOrder_id());
         }
     }
+
+    public List<Order> findAll() {
+        return orderRepository.findAll();
+    }
 }

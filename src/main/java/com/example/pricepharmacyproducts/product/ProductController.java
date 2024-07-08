@@ -61,8 +61,15 @@ public class ProductController {
     }
 
     @GetMapping
-    public String  findAllProducts(Model model){
-        model.addAttribute("product_list", productService.findAllProducts() );
+    public String  findAllProducts(Model model, @RequestParam(value = "keyword", required = false)String keyword){
+        List<Product> productList;
+        if (keyword != null && !keyword.isEmpty()) {
+            productList = productService.findProductByName(keyword);
+        } else {
+            productList = productService.findAllProducts();
+        }
+        model.addAttribute("product_list", productList);
+        model.addAttribute("keyword", keyword);
         return "product_list";
     }
 
@@ -71,6 +78,12 @@ public class ProductController {
             @PathVariable("product_id") Integer id
     ){
         return ResponseEntity.ok().body(productService.findProductById(id));
+    }
+
+    @GetMapping("/all")
+    @ResponseBody
+    public List<Product> getAllProducts() {
+        return productService.findAllProducts();
     }
 
     @GetMapping("/search/{p_name}")

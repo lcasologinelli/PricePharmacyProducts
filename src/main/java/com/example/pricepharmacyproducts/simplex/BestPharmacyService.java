@@ -1,55 +1,48 @@
 package com.example.pricepharmacyproducts.simplex;
 
 import com.example.pricepharmacyproducts.order.Order;
-import com.example.pricepharmacyproducts.order.OrderRepository;
-import com.example.pricepharmacyproducts.pharmacy.Pharmacy;
-import com.example.pricepharmacyproducts.pharmacy.PharmacyRepository;
-import com.example.pricepharmacyproducts.product.Product;
-import com.example.pricepharmacyproducts.product.ProductRepository;
+import com.example.pricepharmacyproducts.order.OrderService;
+import com.example.pricepharmacyproducts.pharmacy.PharmacyMapper;
+import com.example.pricepharmacyproducts.pharmacy.PharmacyService;
+import com.example.pricepharmacyproducts.product.ProductService;
 import com.example.pricepharmacyproducts.sale.Sale;
-import com.example.pricepharmacyproducts.sale.SaleDto;
-import com.example.pricepharmacyproducts.sale.SaleRepository;
 import com.google.ortools.Loader;
-import com.google.ortools.init.OrToolsVersion;
-
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class BestPharmacyService {
 
 
-    private final OrderRepository orderRepository;
-    private final SaleRepository saleRepository;
+    private final OrderService orderService;
+    private final PharmacyService pharmacyService;
+    private final ProductService productService;
+    private final PharmacyMapper pharmacyMapper;
+    private final PharmacyUtility pharmacyUtility;
 
-    private final PharmacyRepository pharmacyRepository;
-    private final ProductRepository productRepository;
-
-    public BestPharmacyService(OrderRepository orderRepository,
-                               SaleRepository saleRepository,
-                               PharmacyRepository pharmacyRepository,
-                               ProductRepository productRepository) {
-        this.orderRepository = orderRepository;
-        this.saleRepository = saleRepository;
-        this.pharmacyRepository = pharmacyRepository;
-        this.productRepository = productRepository;
+    public BestPharmacyService(OrderService orderService,
+                               PharmacyService pharmacyService,
+                               ProductService productService,
+                               PharmacyMapper pharmacyMapper,
+                               PharmacyUtility pharmacyUtility) {
+        this.orderService = orderService;
+        this.pharmacyService = pharmacyService;
+        this.productService = productService;
+        this.pharmacyMapper = pharmacyMapper;
+        this.pharmacyUtility = pharmacyUtility;
     }
 
     public List<SimplexDto> findBestPharmacy(){
 
-
+        Loader.loadNativeLibraries();
 
         //get back order from repository
-        List<Order> orders = orderRepository.findAll();
+        List<Order> orders = orderService.findAll();
 
         //extract sales information from order
         List<Sale> sales = orders.stream()
@@ -94,6 +87,11 @@ public class BestPharmacyService {
             free_shipping[i] = sale.getPharmacy().getFreeShipping();
         }
 
+        for(int i=0; i< n_pharmacies;i++)
+            for (int j=0; j< n_products; j++)
+                if(product_cost[i][j]==0)
+                    product_cost[i][j] = Integer.MAX_VALUE;  //use infinity for unavailable products
+
         //populate quantities for each product from all orders
         for (Order order: orders){
             for(Sale sale: order.getSaleList()){
@@ -103,102 +101,169 @@ public class BestPharmacyService {
         }
 
         //solver definition
-        MPSolver solver = new MPSolver("ProductOptimization", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
+        MPSolver solver = new MPSolver("ProductOptimization", MPSolver.OptimizationProblemType.GLOP_LINEAR_PROGRAMMING);
 
         //Variable definition
         MPVariable[][] x = new MPVariable[n_pharmacies][n_products];
+        MPVariable[] totalCost = new MPVariable[n_pharmacies];
+
+        //creation of variable x_ij
         for(int i=0; i<n_pharmacies; i++)
             for(int j=0; j<n_products; j++)
-                x[i][j] = solver.makeNumVar(0, Double.POSITIVE_INFINITY, "x_"+i+"_"+j);
+                x[i][j] = solver.makeBoolVar("x_"+i+"_"+j);
 
+        //creation of vector total_cost
+        for(int i=0; i< n_pharmacies; i++)
+            totalCost[i] = solver.makeNumVar(0,MPSolver.infinity(),"total_cost"+ i);
+
+        //objective function
+        MPObjective objective = solver.objective();
+
+        //first terms:
+        for(int i = 0; i< n_pharmacies; i++){
+            for(int j=0; j<n_products; j++){
+                if(product_cost[i][j] < Double.POSITIVE_INFINITY) {
+                    objective.setCoefficient(x[i][j], quantity[j] * product_cost[i][j]);
+                }
+            }
+        }
+
+        //Constraints
+
+        //Constraint for unique selection product
+        for (int j = 0; j < n_products; j++) {
+            MPConstraint demandConstraint = solver.makeConstraint(1, 1);
+            for (int i = 0; i < n_pharmacies; i++) {
+                demandConstraint.setCoefficient(x[i][j], 1);
+            }
+        }
+
+        //totalCost constraint
+        for (int i = 0; i < n_pharmacies; i++) {
+            MPConstraint costConstraint = solver.makeConstraint(0, 0, "costConstraint_" + i);
+            for (int j = 0; j <n_products; j++) {
+                if (product_cost[i][j] < Double.POSITIVE_INFINITY) { // Exclude unavailable products
+                    costConstraint.setCoefficient(x[i][j], quantity[j] * product_cost[i][j]);
+                }
+            }
+            costConstraint.setCoefficient(totalCost[i], -1);
+        }
+
+        //solve problem: first iteration
+        solver.solve();
+
+        int[] noShippingFees = new int[n_pharmacies];
+
+        for(int i=0; i<n_pharmacies; i++){
+            double totalCostValue = totalCost[i].solutionValue();
+            if(totalCostValue >= free_shipping[i])
+                noShippingFees[i] = 1;
+            else
+                noShippingFees[i] = 0;
+        }
+
+
+
+        //Create variables for second interaction
         MPVariable[] y = new MPVariable[n_pharmacies];
         MPVariable[] z = new MPVariable[n_pharmacies];
 
         for(int i=0; i<n_pharmacies; i++){
-            y[i] = solver.makeBoolVar("y_"+i);
+            y[i] = solver.makeNumVar(0,shipping_fees[i],"y_"+i);
             z[i] = solver.makeBoolVar("z_"+i);
         }
 
-        MPObjective objective = solver.objective();
-        for(int i=0; i<n_pharmacies; i++) {
-            for (int j = 0; j < n_products; j++) {
-                objective.setCoefficient(x[i][j], product_cost[i][j]);
-            }
-            objective.setCoefficient(y[i], shipping_fees[i]);
-            objective.setCoefficient(z[i], -shipping_fees[i]);
-        }
-        objective.setMinimization();
-
-        // demand constraints
-        for(int j=0; j<n_products; j++){
-            MPConstraint demandConstraint = solver.makeConstraint(quantity[j], quantity[j], "quantity_"+j);
-            for(int i=0; i<n_pharmacies; i++)
-                demandConstraint.setCoefficient(x[i][j],1);
-        }
-
-        // free shipping constraints
+        //Update objective function
         for(int i=0; i<n_pharmacies; i++){
-            MPConstraint freeShippingConstraint = solver.makeConstraint(0,Double.POSITIVE_INFINITY,"free_shipping_"+i);
-            for(int j=0; j<n_products; j++){
-                freeShippingConstraint.setCoefficient(x[i][j], product_cost[i][j]);
-            }
-            freeShippingConstraint.setCoefficient(z[i], -free_shipping[i]);
-
+            objective.setCoefficient(y[i], 1);
         }
 
-        //purchase constraints
-        double M = 1e6;
-        for(int i=0; i<n_pharmacies; i++){
-            MPConstraint purchaseConstraint = solver.makeConstraint(0,Double.POSITIVE_INFINITY, "purchase_"+i);
-            for(int j=0; j<n_products; j++){
-                purchaseConstraint.setCoefficient(x[i][j], 1);
-            }
-            purchaseConstraint.setCoefficient(y[i],M);
+        //Update constraints
+        for (int i = 0; i < n_pharmacies; i++) {
+            MPConstraint zConstraint = solver.makeConstraint(0, 1, "z_constraint_" + i);
+            zConstraint.setCoefficient(z[i], 1 - noShippingFees[i]);
+        }
+
+        for(int i = 0; i< n_pharmacies ; i++){
+            double lb = shipping_fees[i] * (1 - noShippingFees[i]);
+            MPConstraint yConstraint = solver.makeConstraint(lb, lb, "y_constraint");
+            yConstraint.setCoefficient(y[i], 1);
         }
 
         //solve the problem
         MPSolver.ResultStatus resultStatus = solver.solve();
 
-        // Recupera i risultati dell'ottimizzazione
-        List<SimplexDto> optimizedResults = new ArrayList<>();
-        if (resultStatus == MPSolver.ResultStatus.OPTIMAL || resultStatus == MPSolver.ResultStatus.FEASIBLE) {
-            for (int i = 0; i < n_pharmacies; i++) {
-                for (int j = 0; j < n_products; j++) {
-                    if (x[i][j].solutionValue() > 0.5) {
-                        SimplexDto simplexDto = new SimplexDto();
-                        Pharmacy pharmacy = getPharmacyFromIndex(pharmacyIndexMap, i);
-                        Product product = getProductFromIndex(productIndexMap, j);
 
-                        simplexDto.setPharmacy(pharmacy);
-                        simplexDto.setProduct(product);
-                        simplexDto.setQuantity((int) x[i][j].solutionValue());
-                        simplexDto.setCost(product_cost[i][j] * x[i][j].solutionValue());
-                        optimizedResults.add(simplexDto);
+        List<SimplexDto> bestSolution = new ArrayList<>();
+        List<SimplexDto> comparableResult = new ArrayList<>();
+
+        //collecting results
+        if (resultStatus == MPSolver.ResultStatus.OPTIMAL) {
+
+            for(int i=0; i<n_pharmacies; i++)
+                for (int j=0; j<n_products; j++) {
+                    if (x[i][j].solutionValue() == 1 && y[i].solutionValue() == 0 && totalCost[i].solutionValue()!=0) {
+                        int finalI = i;
+                        int finalJ = j;
+                        SimplexDto dto = new SimplexDto(
+                                pharmacyService.findPharmacyById(pharmacyIndexMap.entrySet().stream()
+                                        .filter(entry -> entry.getValue().equals(finalI))
+                                        .map(Map.Entry::getKey)
+                                        .findFirst()
+                                        .orElseThrow()),
+                                productService.findProductById(productIndexMap.entrySet().stream()
+                                        .filter(entry -> entry.getValue().equals(finalJ))
+                                        .map(Map.Entry::getKey)
+                                        .findFirst()
+                                        .orElseThrow()),
+                                quantity[j],
+                                quantity[j] * product_cost[i][j],
+                                0
+                        );
+                        bestSolution.add(dto);
+                    }
+
+                    else if(x[i][j].solutionValue() == 1 && y[i].solutionValue() > 0){
+                        int finalI1 = i;
+                        int finalJ1 = j;
+                        SimplexDto dto = new SimplexDto(
+                                pharmacyService.findPharmacyById(pharmacyIndexMap.entrySet().stream()
+                                        .filter(entry -> entry.getValue().equals(finalI1))
+                                        .map(Map.Entry::getKey)
+                                        .findFirst()
+                                        .orElseThrow()),
+                                productService.findProductById(productIndexMap.entrySet().stream()
+                                        .filter(entry -> entry.getValue().equals(finalJ1))
+                                        .map(Map.Entry::getKey)
+                                        .findFirst()
+                                        .orElseThrow()),
+                                quantity[j],
+                                (quantity[j] * product_cost[i][j]),
+                                y[i].solutionValue()*(1-z[i].solutionValue())
+                        );
+                        comparableResult.add(dto);
                     }
                 }
-            }
-        }
 
-        return optimizedResults;
-    }
+            List<Map.Entry<Integer, Set<Integer>>> ids = pharmacyUtility.extractPharmaciesForProducts(bestSolution,comparableResult);
 
-    private Product getProductFromIndex(Map<Integer, Integer> productIndexMap, int index) {
-        for (Map.Entry<Integer, Integer> entry : productIndexMap.entrySet()) {
-            if (entry.getValue() == index) {
-                return productRepository.findById(entry.getKey()).orElse(null);
+            List<Sale> comparableSales = pharmacyUtility.extractSalesFromProductPharmacyEntries(ids);
+
+            SimplexDto min;
+
+            for(SimplexDto result :comparableResult){
+                min = result;
+                for (Sale sale : comparableSales)
+                    if(Objects.equals(result.getProduct().getProduct_id(), sale.getId().getProduct_id()) &&
+                            result.getQuantity()*sale.getPrice() < result.getQuantity()*result.getCost()+ result.getShippingFees()
+                            )
+                        min = new SimplexDto(pharmacyMapper.toDto(sale.getPharmacy()), sale.getProduct(), result.getQuantity(),sale.getPrice(),0);
+                bestSolution.add(min);
             }
-        }
+            return bestSolution;
+       }
+
         return null;
     }
-
-    private Pharmacy getPharmacyFromIndex(Map<Integer, Integer> pharmacyIndexMap, int index) {
-        for (Map.Entry<Integer, Integer> entry : pharmacyIndexMap.entrySet()) {
-            if (entry.getValue() == index) {
-                return pharmacyRepository.findById(entry.getKey()).orElse(null);
-            }
-        }
-        return null;
-    }
-
 
 }

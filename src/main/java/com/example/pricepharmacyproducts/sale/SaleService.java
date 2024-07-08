@@ -25,9 +25,10 @@ public class SaleService {
        return saleRepository.findAll();
     }
 
-    public Set<Product> findAvailableProducts() {
 
-        Set<Product> newProduct = new HashSet<>();
+    public List<Product> findAvailableProducts() {
+
+        List<Product> newProduct = new ArrayList<>();
 
         List<Sale> allSales = saleRepository.findAll();
             for (Sale sale : allSales) {
@@ -48,7 +49,7 @@ public class SaleService {
     }
 
 
-    public List<Integer> findMaxQuantity(Set<Product> availableProducts) {
+    public List<Integer> findMaxQuantity(List<Product> availableProducts) {
 
         List<Integer> maxQuantityProducts= new ArrayList<>();
         int maxQuantity;
@@ -67,4 +68,20 @@ public class SaleService {
     public void saveSale(Sale sale) {
         saleRepository.save(sale);
     }
+
+
+
+    public Sale findByProductIdAndPharmacyId(Integer productId, Integer pharmacyId) {
+        List<Sale> sales = saleRepository.findAll();
+
+        Sale foundSale = new Sale();
+        for(Sale sale: sales){
+            if(sale.getId().getPharmacy_id().equals(pharmacyId)
+            && sale.getProduct().getProduct_id().equals(productId))
+                foundSale = sale;
+
+        }
+        return foundSale;
+    }
+
 }

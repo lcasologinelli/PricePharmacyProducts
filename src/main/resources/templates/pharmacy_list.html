@@ -17,6 +17,12 @@
         <div class = "col-lg-3">
             <a th:href="@{pharmacies/newPharmacy}" class="btn btn-primary btn-sm mb-3">Add Pharmacy</a>
         </div>
+        <div class="col-lg-6">
+            <form class="d-flex" th:action="@{/pharmacies}" method="get">
+                <input class="form-control me-2" type="search" name="keyword" placeholder="Search" aria-label="Search" th:value="${keyword}">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div>
     </div>
     <table class="table thead-dark">
         <thead class = "table-dark">

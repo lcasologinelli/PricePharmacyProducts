@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xlmns:th="https://www.thymeleaf.org/" xmlns:xlmns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="https://www.thymeleaf.org/" xmlns:xlmns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,7 +18,7 @@
         Ordine aggiunto
     </div>
     <table class="table thead-dark">
-        <thead class = "table-dark">
+        <thead class="table-dark">
         <tr>
             <th>Name</th>
             <th>Format</th>
@@ -30,16 +30,16 @@
         </thead>
 
         <tbody>
-        <tr th:each = "entry: ${productMaxQuantityMap}">
-            <td th:text = "${entry.key.getName()}"></td>
-            <td th:text = "${entry.key.getFormat()}"></td>
-            <td th:text = "${entry.key.getProducer()}"></td>
-            <td th:text = "${entry.key.getCategory()}"></td>
-            <td th:text = "${entry.key.getDose()}"></td>
+        <tr th:each="entry : ${productMaxQuantityMap}">
+            <td th:text="${entry.key.getName()}"></td>
+            <td th:text="${entry.key.getFormat()}"></td>
+            <td th:text="${entry.key.getProducer()}"></td>
+            <td th:text="${entry.key.getCategory()}"></td>
+            <td th:text="${entry.key.getDose()}"></td>
             <td class="d-flex align-items-center">
                 <form th:action="@{/sales/insertIntoCart}" method="post">
-                    <input type="hidden" name="product_id" th:value="${entry.key.getProduct_id()}" />
-                    <input type="number" class="form-control me-2" name="quantity" min="1" th:max="${entry.value}" value="1" style="width: 80px;"/>
+                    <input type="hidden" name="product_id" th:value="${entry.key.getProduct_id()}"/>
+                    <input type="number" class="form-control me-2" name="quantity" min="1" th:max="${entry.value}" th:value="${productQuantities[entry.key.getProduct_id()]}" style="width: 80px;"/>
                     <button type="submit" class="btn btn-primary" th:disabled="${#lists.contains(orderProductIds, entry.key.getProduct_id())}">
                         <i class="bi bi-cart"></i>
                         Add

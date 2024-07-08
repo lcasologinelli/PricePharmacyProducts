@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class PharmacyMapper {
-
     ProductService productService;
     SaleMapper saleMapper;
 

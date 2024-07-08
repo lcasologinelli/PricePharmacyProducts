@@ -9,7 +9,6 @@ public class PricePharmacyProductsApplication {
 
 	public static void main(String[] args) {
 
-		Loader.loadNativeLibraries();
 		SpringApplication.run(PricePharmacyProductsApplication.class, args);
 	}
 

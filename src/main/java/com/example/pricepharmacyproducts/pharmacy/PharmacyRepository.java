@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface PharmacyRepository extends JpaRepository<Pharmacy,Integer> {
 
-    List<Pharmacy> findAllByNameContaining(String p);
+    List<Pharmacy> findAllByNameContainingIgnoreCase(String p);
 
 }

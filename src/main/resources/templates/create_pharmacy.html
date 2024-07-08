@@ -17,66 +17,42 @@
                 <form th:action="@{/pharmacies}" th:object="${pharmacyDto}" method="post">
                     <div class="form-group">
                         <label for="name">Pharmacy Name</label>
-                        <input
-                                type="text"
-                                class="form-control"
-                                th:field="*{name}"
-                                id="name"
-                                name="name" required
-                        >
+                        <input type="text" class="form-control" th:field="*{name}" id="name" name="name" required>
                     </div>
                     <div class="form-group">
                         <label for="webAddress">Web Address</label>
-                        <input
-                                type="text"
-                                class="form-control"
-                                th:field="*{webAddress}"
-                                id="webAddress"
-                                name="webAddress" required>
+                        <input type="text" class="form-control" th:field="*{webAddress}" id="webAddress" name="webAddress" required>
                     </div>
                     <div class="form-group">
                         <label for="city">City</label>
-                        <input
-                                type="text"
-                                class="form-control"
-                                th:field="*{city}"
-                                id="city"
-                                name="city">
+                        <input type="text" class="form-control" th:field="*{city}" id="city" name="city">
                     </div>
                     <div class="form-group">
                         <label for="shippingFees">Shipping Fees</label>
-                        <input
-                                type="number"
-                                class="form-control"
-                                th:field="*{shippingFees}"
-                                id="shippingFees"
-                                name="shippingFees" required>
+                        <input type="number" class="form-control" th:field="*{shippingFees}" id="shippingFees" name="shippingFees" required>
                     </div>
                     <div class="form-group">
                         <label for="freeShipping">Free Shipping</label>
-                        <input
-                                type="number"
-                                class="form-control"
-                                th:field="*{freeShipping}"
-                                id="freeShipping"
-                                name="freeShipping">
+                        <input type="number" class="form-control" th:field="*{freeShipping}" id="freeShipping" name="freeShipping">
                     </div>
 
                     <!-- Sezione per le vendite -->
                     <h3>Sales</h3>
                     <div id="sales">
-                        <div class="sale" th:each="sale, stat : *{sales}">
+                        <div class="sale">
                             <div class="form-group">
-                                <label for="product_id">Product ID</label>
-                                <input type="number" class="form-control" th:field="*{sales[__${stat.index}__].product_id}" id="product_id" name="sales[__${stat.index}__].product_id" required>
+                                <label for="product_id_0">Product</label>
+                                <select class="form-control product-select" id="product_id_0" name="sales[0].product_id" required>
+                                    <option value="">Select Product</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <label for="price">Price</label>
-                                <input type="number" class="form-control" step="0.01" th:field="*{sales[__${stat.index}__].price}" id="price" name="sales[__${stat.index}__].price" required>
+                                <label for="price_0">Price</label>
+                                <input type="number" class="form-control" step="0.01" id="price_0" name="sales[0].price" required>
                             </div>
                             <div class="form-group">
-                                <label for="quantity">Quantity</label>
-                                <input type="number" class="form-control" th:field="*{sales[__${stat.index}__].quantity}" id="quantity" name="sales[__${stat.index}__].quantity" required>
+                                <label for="quantity_0">Quantity</label>
+                                <input type="number" class="form-control" id="quantity_0" name="sales[0].quantity" required>
                             </div>
                             <button type="button" class="btn btn-danger remove-sale">Remove</button>
                         </div>
@@ -91,30 +67,58 @@
 
 <script>
     $(document).ready(function () {
+        var saleIndex = 1; // Indice iniziale per le vendite
+
+        // Funzione per caricare dinamicamente i prodotti disponibili
+        function loadProducts(selectElement) {
+            $.ajax({
+                url: '/products/all',
+                method: 'GET',
+                success: function (data) {
+                    var products = data;
+                    var selectHtml = '';
+                    $.each(products, function (index, product) {
+                        selectHtml += '<option value="' + product.product_id + '">' + product.name + '</option>';
+                    });
+                    selectElement.html(selectHtml);
+                }
+            });
+        }
+
+        // Aggiungi vendita
         $('#add-sale').click(function () {
-            var index = $('#sales .sale').length;
-            $('#sales').append(
+            var newSaleHtml =
                 '<div class="sale">' +
                 '<div class="form-group">' +
-                '<label for="product_id">Product ID</label>' +
-                '<input type="number" class="form-control" id="product_id" name="sales[' + index + '].product_id" required>' +
+                '<label for="product_id_' + saleIndex + '">Product</label>' +
+                '<select class="form-control product-select" id="product_id_' + saleIndex + '" name="sales[' + saleIndex + '].product_id" required>' +
+                '<option value="">Select Product</option>' +
+                '</select>' +
                 '</div>' +
                 '<div class="form-group">' +
-                '<label for="price">Price</label>' +
-                '<input type="number" class="form-control" step="0.01" id="price" name="sales[' + index + '].price" required>' +
+                '<label for="price_' + saleIndex + '">Price</label>' +
+                '<input type="number" class="form-control" step="0.01" id="price_' + saleIndex + '" name="sales[' + saleIndex + '].price" required>' +
                 '</div>' +
                 '<div class="form-group">' +
-                '<label for="quantity">Quantity</label>' +
-                '<input type="number" class="form-control" id="quantity" name="sales[' + index + '].quantity" required>' +
+                '<label for="quantity_' + saleIndex + '">Quantity</label>' +
+                '<input type="number" class="form-control" id="quantity_' + saleIndex + '" name="sales[' + saleIndex + '].quantity" required>' +
                 '</div>' +
                 '<button type="button" class="btn btn-danger remove-sale">Remove</button>' +
-                '</div>'
-            );
+                '</div>';
+
+            $('#sales').append(newSaleHtml);
+            loadProducts($('#sales .sale:last-child .product-select')); // Carica dinamicamente i prodotti per il nuovo campo select aggiunto
+
+            saleIndex++; // Incrementa l'indice per la prossima vendita
         });
 
+        // Rimuovi vendita
         $(document).on('click', '.remove-sale', function () {
             $(this).closest('.sale').remove();
         });
+
+        // Carica i prodotti per la prima volta
+        loadProducts($('.product-select'));
     });
 </script>
 </body>
