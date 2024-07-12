@@ -1,12 +1,10 @@
 package com.example.pricepharmacyproducts.sale;
 
 import com.example.pricepharmacyproducts.product.Product;
-import com.example.pricepharmacyproducts.product.ProductController;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class SaleService {
@@ -80,8 +78,6 @@ public class SaleService {
     public void saveSale(Sale sale) {
         saleRepository.save(sale);
     }
-
-
 
     public Sale findByProductIdAndPharmacyId(Integer productId, Integer pharmacyId) {
         List<Sale> sales = saleRepository.findAll();

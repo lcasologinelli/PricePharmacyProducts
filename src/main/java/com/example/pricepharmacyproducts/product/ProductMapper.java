@@ -1,7 +1,5 @@
 package com.example.pricepharmacyproducts.product;
 
-import com.example.pricepharmacyproducts.product.ProductDto;
-import com.example.pricepharmacyproducts.product.Product;
 import org.springframework.stereotype.Service;
 
 @Service

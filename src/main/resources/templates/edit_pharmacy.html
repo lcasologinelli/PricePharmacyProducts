@@ -29,11 +29,11 @@
                         <input type="text" class="form-control" th:field="*{city}" id="city" name="city">
                     </div>
                     <div class="form-group">
-                        <label for="shippingFees">Shipping Fees</label>
+                        <label for="shippingFees">Shipping Fees (€)</label>
                         <input type="number" class="form-control" th:field="*{shippingFees}" id="shippingFees" name="shippingFees" required>
                     </div>
                     <div class="form-group">
-                        <label for="freeShipping">Free Shipping</label>
+                        <label for="freeShipping">Free Shipping (€)</label>
                         <input type="number" class="form-control" th:field="*{freeShipping}" id="freeShipping" name="freeShipping">
                     </div>
 
@@ -43,12 +43,13 @@
                         <div class="sale" th:each="sale, stat : *{sales}">
                             <div class="form-group">
                                 <label th:for="'product_id_' + ${stat.index}">Product</label>
-                                <select class="form-control product-select" th:field="*{sales[__${stat.index}__].product_id}" th:id="'product_id_' + ${stat.index}" th:name="|sales[${stat.index}].product_id|" required>
+                                <select class="form-control product-select" th:field="*{sales[__${stat.index}__].product_id}" th:id="'product_id_' + ${stat.index}" th:name="|sales[${stat.index}].product_id|" data-selected="${sale.product_id}" required>
                                     <option value="" th:text="#{select.product}"></option>
+                                    <option th:each="product : ${products}" th:value="${product.product_id}" th:text="${product.name}" th:selected="${product.product_id} == ${sale.product_id}"></option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label th:for="'price_' + ${stat.index}">Price</label>
+                                <label th:for="'price_' + ${stat.index}">Price (€)</label>
                                 <input type="number" class="form-control" step="0.01" th:field="*{sales[__${stat.index}__].price}" th:id="'price_' + ${stat.index}" th:name="|sales[${stat.index}].price|" required>
                             </div>
                             <div class="form-group">
@@ -62,102 +63,43 @@
 
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary">Submit</button>
+                        <a href="#" th:href="@{/pharmacies}" class="btn btn-danger">Cancel</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
 <script>
-    $(document).ready(function () {
-        var saleIndex = $('#sales .sale').length; // Inizializza l'indice delle vendite esistenti
-
-        // Funzione per caricare dinamicamente i prodotti disponibili
-        function loadProducts(selectElement) {
-            $.ajax({
-                url: '/products/all',
-                method: 'GET',
-                success: function (data) {
-                    var products = data;
-                    var selectHtml = '<option value="">Select Product</option>';
-                    $.each(products, function (index, product) {
-                        selectHtml += '<option value="' + product.product_id + '">' + product.name + '</option>';
-                    });
-                    selectElement.html(selectHtml);
-
-                    // Pre-seleziona il prodotto se già presente
-                    selectElement.find('option[value="' + selectElement.attr('data-selected') + '"]').attr('selected', 'selected');
-                }
-            });
-        }
-
-        // Carica i prodotti per le vendite esistenti
-        $('#sales .product-select').each(function () {
-            loadProducts($(this));
+    $(document).ready(function() {
+        // Add new sale
+        $('#add-sale').click(function() {
+            var index = $('#sales .sale').length;
+            var saleHtml = `
+                <div class="sale">
+                    <div class="form-group">
+                        <label for="product_id_${index}">Product</label>
+                        <select class="form-control product-select" id="product_id_${index}" name="sales[${index}].product_id" required>
+                            <option value="">Select Product</option>
+                            <option th:each="product : ${products}" th:value="${product.product_id}" th:text="${product.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="price_${index}">Price (€)</label>
+                        <input type="number" class="form-control" step="0.01" id="price_${index}" name="sales[${index}].price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity_${index}">Quantity</label>
+                        <input type="number" class="form-control" id="quantity_${index}" name="sales[${index}].quantity" required>
+                    </div>
+                    <button type="button" class="btn btn-danger remove-sale">Remove</button>
+                </div>`;
+            $('#sales').append(saleHtml);
         });
 
-        // Aggiungi vendita
-        $('#add-sale').click(function () {
-            var newSaleHtml =
-                '<div class="sale">' +
-                '<div class="form-group">' +
-                '<label for="product_id_' + saleIndex + '">Product</label>' +
-                '<select class="form-control product-select" id="product_id_' + saleIndex + '" name="sales[' + saleIndex + '].product_id" required>' +
-                '<option value="">Select Product</option>' +
-                '</select>' +
-                '</div>' +
-                '<div class="form-group">' +
-                '<label for="price_' + saleIndex + '">Price</label>' +
-                '<input type="number" class="form-control" step="0.01" id="price_' + saleIndex + '" name="sales[' + saleIndex + '].price" required>' +
-                '</div>' +
-                '<div class="form-group">' +
-                '<label for="quantity_' + saleIndex + '">Quantity</label>' +
-                '<input type="number" class="form-control" id="quantity_' + saleIndex + '" name="sales[' + saleIndex + '].quantity" required>' +
-                '</div>' +
-                '<button type="button" class="btn btn-danger remove-sale">Remove</button>' +
-                '</div>';
-
-            $('#sales').append(newSaleHtml);
-            loadProducts($('#sales .sale:last-child .product-select')); // Carica dinamicamente i prodotti per il nuovo campo select aggiunto
-
-            saleIndex++; // Incrementa l'indice per la prossima vendita
-        });
-
-        // Rimuovi vendita
-        $(document).on('click', '.remove-sale', function () {
+        // Remove sale
+        $(document).on('click', '.remove-sale', function() {
             $(this).closest('.sale').remove();
-            // Riassegna i nomi degli input per mantenere la sequenza corretta degli indici
-            $('#sales .sale').each(function(index) {
-                $(this).find('input, select').each(function() {
-                    var name = $(this).attr('name');
-                    var newName = name.replace(/\[\d+\]/, '[' + index + ']');
-                    $(this).attr('name', newName);
-                    var id = $(this).attr('id');
-                    var newId = id.replace(/_\d+$/, '_' + index);
-                    $(this).attr('id', newId);
-                });
-                $(this).find('label').each(function() {
-                    var forAttr = $(this).attr('for');
-                    var newForAttr = forAttr.replace(/_\d+$/, '_' + index);
-                    $(this).attr('for', newForAttr);
-                });
-            });
-        });
-
-        // Validazione lato client prima dell'invio del modulo
-        $('#pharmacy-form').submit(function (event) {
-            var valid = true;
-            $('#sales .product-select').each(function () {
-                if ($(this).val() === "") {
-                    valid = false;
-                    alert("Please select a product for all sales.");
-                    return false; // Esci dal ciclo each
-                }
-            });
-            if (!valid) {
-                event.preventDefault(); // Previeni l'invio del modulo
-            }
         });
     });
 </script>

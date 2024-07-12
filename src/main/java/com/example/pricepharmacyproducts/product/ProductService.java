@@ -1,10 +1,6 @@
 package com.example.pricepharmacyproducts.product;
 
 import com.example.pricepharmacyproducts.exception.IdNotFoundException;
-import com.example.pricepharmacyproducts.product.ProductDto;
-import com.example.pricepharmacyproducts.product.Product;
-import com.example.pricepharmacyproducts.product.ProductMapper;
-import com.example.pricepharmacyproducts.product.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,13 +16,12 @@ public class ProductService {
         this.productMapper = productMapper;
     }
 
-    public Product saveProduct(Product product){
-//        Product newProduct = productMapper.productDtoToProduct(productDto);
-        return productRepository.save(product);
+    public void saveProduct(Product product){
+        productRepository.save(product);
     }
 
-    public Product updateProduct(Product product){
-        return productRepository.save(product);
+    public void updateProduct(Product product){
+        productRepository.save(product);
 
     }
 

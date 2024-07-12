@@ -11,64 +11,91 @@
 
 <div th:insert="~{parts/navbar::navigation}"></div>
 <div class="container">
-    <div class="row">
-        <h1> Best Pharmacy Order </h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mb-3 text-center">
+                <div class="card-body">
+                    <h2 class="card-title">Total Cost</h2>
+                    <p class="card-text" th:text=" ${totalCost} + '€'"></p>
+                </div>
+            </div>
+        </div>
     </div>
-    <table class="table thead-dark">
-        <thead class="table-dark">
-        <tr>
-            <th>Pharmacy</th>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Cost</th>
-            <th>Shipping Fees</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        <tr th:each="dto : ${findBestPharmacy}">
-            <td>
-                <p class="d-inline-flex gap-1">
-                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapsePharmacy' + ${dto.getPharmacy().getId()}" aria-expanded="false" th:aria-controls="'collapsePharmacy' + ${dto.getPharmacy().getId()}">
-                        Show Pharmacy
-                    </button>
-                </p>
-                <div class="collapse" th:id="'collapsePharmacy' + ${dto.getPharmacy().getId()}">
-                    <div class="card mb-2">
-                        <div class="card-body">
-                            <p class="card-text">Name: <span th:text="${dto.getPharmacy().getName()}"></span></p>
-                            <p class="card-text">Web Address: <span th:text="${dto.getPharmacy().getWebAddress()}"></span></p>
-                            <p class="card-text">City: <span th:text="${dto.getPharmacy().getCity()}"></span></p>
-                            <p class="card-text">Shipping Fees: <span th:text="${dto.getPharmacy().getShippingFees()}"></span></p>
-                            <p class="card-text">Free Shipping: <span th:text="${dto.getPharmacy().getFreeShipping()}"></span></p>
+    <div class="row">
+        <div class="col">
+            <h2>Pharmacy Orders</h2>
+            <table class="table thead-dark">
+                <thead class="table-dark">
+                <tr>
+                    <th>Pharmacy</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Cost</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="dto : ${findBestPharmacy}">
+                    <td>
+                        <p class="d-inline-flex gap-1">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapsePharmacy' + ${dto.getPharmacy().getId()}" aria-expanded="false" th:aria-controls="'collapsePharmacy' + ${dto.getPharmacy().getId()}">
+                                Show Pharmacy
+                            </button>
+                        </p>
+                        <div class="collapse" th:id="'collapsePharmacy' + ${dto.getPharmacy().getId()}">
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <p class="card-text">Name: <span th:text="${dto.getPharmacy().getName()}"></span></p>
+                                    <p class="card-text">Web Address: <span th:text="${dto.getPharmacy().getWebAddress()}"></span></p>
+                                    <p class="card-text">City: <span th:text="${dto.getPharmacy().getCity()}"></span></p>
+                                    <p class="card-text">Shipping Fees: <span th:text="${dto.getPharmacy().getShippingFees()} + '€'"></span></p>
+                                    <p class="card-text">Free Shipping: <span th:text="${dto.getPharmacy().getFreeShipping()} + '€'"></span></p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <p class="d-inline-flex gap-1">
-                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapseProduct' + ${dto.getProduct().getProduct_id()}" aria-expanded="false" th:aria-controls="'collapseProduct' + ${dto.getProduct().getProduct_id()}">
-                        Show Product
-                    </button>
-                </p>
-                <div class="collapse" th:id="'collapseProduct' + ${dto.getProduct().getProduct_id()}">
-                    <div class="card mb-2">
-                        <div class="card-body">
-                            <p class="card-text">Name: <span th:text="${dto.getProduct().getName()}"></span></p>
-                            <p class="card-text">Format: <span th:text="${dto.getProduct().getFormat()}"></span></p>
-                            <p class="card-text">Producer: <span th:text="${dto.getProduct().getProducer()}"></span></p>
-                            <p class="card-text">Category: <span th:text="${dto.getProduct().getCategory()}"></span></p>
-                            <p class="card-text">Dose: <span th:text="${dto.getProduct().getDose()}"></span></p>
+                    </td>
+                    <td>
+                        <p class="d-inline-flex gap-1">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapseProduct' + ${dto.getProduct().getProduct_id()}" aria-expanded="false" th:aria-controls="'collapseProduct' + ${dto.getProduct().getProduct_id()}">
+                                Show Product
+                            </button>
+                        </p>
+                        <div class="collapse" th:id="'collapseProduct' + ${dto.getProduct().getProduct_id()}">
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <p class="card-text">Name: <span th:text="${dto.getProduct().getName()}"></span></p>
+                                    <p class="card-text">Format: <span th:text="${dto.getProduct().getFormat()}"></span></p>
+                                    <p class="card-text">Producer: <span th:text="${dto.getProduct().getProducer()}"></span></p>
+                                    <p class="card-text">Category: <span th:text="${dto.getProduct().getCategory()}"></span></p>
+                                    <p class="card-text">Dose: <span th:text="${dto.getProduct().getDose()}"></span></p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </td>
-            <td th:text="${dto.quantity}"></td>
-            <td th:text="${dto.cost}"></td>
-            <td th:text="${dto.shippingFees}"></td>
-        </tr>
-        </tbody>
-    </table>
+                    </td>
+                    <td th:text="${dto.quantity}"></td>
+                    <td th:text="${dto.cost} + '€'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <h2>Shipping Fees</h2>
+            <table class="table thead-dark">
+                <thead class="table-dark">
+                <tr>
+                    <th>Pharmacy</th>
+                    <th>Shipping Fees</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="feeDto : ${pharmacyShipping}">
+                    <td th:text="${feeDto.pharmacy.name}"></td>
+                    <td th:text="${feeDto.shippingFees} + '€'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
 </body>
 </html>

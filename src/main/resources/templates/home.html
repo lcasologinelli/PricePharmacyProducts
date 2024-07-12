@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org/" xmlns:xlmns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="https://www.thymeleaf.org/">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,6 +22,9 @@
         <div class="input-group">
             <input type="text" class="form-control" placeholder="Search by name" name="searchName" th:value="${searchName}">
             <button class="btn btn-outline-secondary" type="submit">Search</button>
+        </div>
+        <div class="row mt-3">
+            <a href="/orders/find" class="btn btn-success">Buy</a>
         </div>
     </form>
     <table class="table thead-dark">
@@ -46,7 +49,7 @@
             <td class="d-flex align-items-center">
                 <form th:action="@{/sales/insertIntoCart}" method="post">
                     <input type="hidden" name="product_id" th:value="${entry.key.getProduct_id()}"/>
-                    <input type="number" class="form-control me-2" name="quantity" min="1" th:max="${entry.value}" th:value="${productQuantities[entry.key.getProduct_id()]}" style="width: 80px;"/>
+                    <input type="number" class="form-control me-2" name="quantity" min="1" th:max="${entry.value}" th:value="${productQuantities[entry.key.getProduct_id()] != null ? productQuantities[entry.key.getProduct_id()] : 1}" style="width: 80px;"/>
                     <button type="submit" class="btn btn-primary" th:disabled="${#lists.contains(orderProductIds, entry.key.getProduct_id())}">
                         <i class="bi bi-cart"></i>
                         Add
@@ -63,9 +66,6 @@
         </tr>
         </tbody>
     </table>
-    <div class="row mt-3">
-        <a href="/orders/find" class="btn btn-success">Buy</a>
-    </div>
 </div>
 </body>
 </html>

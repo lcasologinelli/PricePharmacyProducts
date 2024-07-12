@@ -1,6 +1,5 @@
 package com.example.pricepharmacyproducts.pharmacy;
 
-import com.example.pricepharmacyproducts.pharmacy.Pharmacy;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

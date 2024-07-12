@@ -2,7 +2,6 @@ package com.example.pricepharmacyproducts.order;
 
 import com.example.pricepharmacyproducts.sale.Sale;
 import jakarta.transaction.Transactional;
-import lombok.Getter;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

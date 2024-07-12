@@ -1,5 +1,7 @@
 package com.example.pricepharmacyproducts.simplex;
 
+import com.example.pricepharmacyproducts.pharmacy.PharmacyDto;
+import com.example.pricepharmacyproducts.product.Product;
 import com.example.pricepharmacyproducts.sale.Sale;
 import com.example.pricepharmacyproducts.sale.SaleDto;
 import com.example.pricepharmacyproducts.sale.SaleService;
@@ -54,6 +56,120 @@ public class PharmacyUtility {
         tempMap.put(c_productId, ids);
         return tempMap;
     }
+
+    public List<AggregatedPharmacyDto> aggregatePharmacies(List<SimplexDto> simplexDtos) {
+        // Mappa per aggregare i dati in base all'ID della farmacia
+        Map<Integer, List<SimplexDto>> pharmacyIdToSimplexDtosMap = new HashMap<>();
+
+        // Itera attraverso ogni SimplexDto nella lista simplexDtos
+        for (SimplexDto dto : simplexDtos) {
+            Integer pharmacyId = dto.getPharmacy().getId();
+
+            // Verifica se l'ID della farmacia è già presente nella mappa
+            if (!pharmacyIdToSimplexDtosMap.containsKey(pharmacyId)) {
+                pharmacyIdToSimplexDtosMap.put(pharmacyId, new ArrayList<>());  // Se non è presente, aggiungi una nuova lista vuota
+            }
+
+            // Aggiungi il SimplexDto corrente alla lista della farmacia nella mappa
+            pharmacyIdToSimplexDtosMap.get(pharmacyId).add(dto);
+        }
+
+        // Lista per i risultati aggregati
+        List<AggregatedPharmacyDto> aggregatedList = new ArrayList<>();
+
+        // Itera attraverso ogni entry nella mappa pharmacyIdToSimplexDtosMap
+        for (Map.Entry<Integer, List<SimplexDto>> entry : pharmacyIdToSimplexDtosMap.entrySet()) {
+            Integer pharmacyId = entry.getKey();
+            List<SimplexDto> dtos = entry.getValue();
+
+            // Trova il PharmacyDto corrispondente all'ID dalla lista simplexDtos
+            PharmacyDto pharmacy = null;
+            for (SimplexDto dto : simplexDtos) {
+                if (dto.getPharmacy().getId().equals(pharmacyId)) {
+                    pharmacy = dto.getPharmacy();
+                    break;
+                }
+            }
+
+            // Se la farmacia è null (non dovrebbe succedere), passa alla prossima iterazione
+            if (pharmacy == null) {
+                continue;
+            }
+
+            // Se ci sono più elementi con la stessa farmacia, crea un AggregatedPharmacyDto
+            if (dtos.size() > 1) {
+                List<Product> products = new ArrayList<>();
+                List<Integer> quantities = new ArrayList<>();
+                List<Double> costs = new ArrayList<>();
+                double shippingFees = pharmacy.getShippingFees();
+
+                for (SimplexDto dto : dtos) {
+                    products.add(dto.getProduct());
+                    quantities.add(dto.getQuantity());
+                    costs.add(dto.getCost());
+                }
+
+                aggregatedList.add(new AggregatedPharmacyDto(pharmacy, products, quantities, costs, shippingFees));
+            }
+        }
+
+        // Rimuovi i SimplexDto duplicati dalla lista originale simplexDtos
+//        simplexDtos.removeIf(dto -> pharmacyIdToSimplexDtosMap.get(dto.getPharmacy().getId()).size() > 1);
+
+        return aggregatedList;
+    }
+
+    public List<SimplexDto> updateSimplexDtosWithAggregates(List<AggregatedPharmacyDto> aggregateList, List<SimplexDto> simplexList) {
+        // Itera attraverso la lista degli oggetti aggregati
+        for (AggregatedPharmacyDto aggregate : aggregateList) {
+            List<Product> aggregateProducts = aggregate.getProducts();
+            List<Integer> aggregateQuantities = aggregate.getQuantities();
+            List<Double> aggregateCosts = aggregate.getCosts();
+            double aggregateShippingFees = aggregate.getShippingFees();
+
+            double aggregateTotalCost = aggregateCosts.stream().mapToDouble(Double::doubleValue).sum() + aggregateShippingFees;
+
+            // Trova gli elementi corrispondenti nella lista SimplexDto
+            List<SimplexDto> matchedSimplexDtos = new ArrayList<>();
+            for (Product aggregateProduct : aggregateProducts) {
+                Integer aggregateProductId = aggregateProduct.getProduct_id();
+
+                for (SimplexDto simplex : simplexList) {
+                    if (simplex.getProduct().getProduct_id().equals(aggregateProductId)) {
+                        matchedSimplexDtos.add(simplex);
+                    }
+                }
+            }
+
+            // Se il numero di elementi corrispondenti nella lista SimplexDto è uguale al numero di prodotti nell'aggregato
+            if (matchedSimplexDtos.size() == aggregateProducts.size()) {
+                double simplexTotalCost = matchedSimplexDtos.stream().mapToDouble(SimplexDto::getCost).sum()
+                        + matchedSimplexDtos.get(0).getShippingFees();
+
+                // Confronta i costi
+                if (aggregateTotalCost < simplexTotalCost) {
+                    // Rimuovi i vecchi SimplexDto dalla lista
+                    simplexList.removeAll(matchedSimplexDtos);
+
+                    // Aggiungi nuovi SimplexDto con i valori di Aggregate
+                    for (int j = 0; j < aggregateProducts.size(); j++) {
+                        SimplexDto newSimplex = new SimplexDto();
+                        newSimplex.setPharmacy(aggregate.getPharmacy());
+                        newSimplex.setProduct(aggregateProducts.get(j));
+                        newSimplex.setQuantity(aggregateQuantities.get(j));
+                        newSimplex.setCost(aggregateCosts.get(j));
+                        newSimplex.setShippingFees(aggregateShippingFees);
+
+                        // Aggiungi il nuovo SimplexDto alla lista
+                        simplexList.add(newSimplex);
+                    }
+                }
+            }
+        }
+
+        return simplexList;
+    }
+
 
 
     public List<Sale> extractSalesFromProductPharmacyEntries(List<Map.Entry<Integer, Set<Integer>>> productPharmacyEntries) {

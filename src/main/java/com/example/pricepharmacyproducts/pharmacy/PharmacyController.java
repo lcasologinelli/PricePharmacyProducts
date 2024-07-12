@@ -1,18 +1,13 @@
 package com.example.pricepharmacyproducts.pharmacy;
 
+
 import com.example.pricepharmacyproducts.product.Product;
-import com.example.pricepharmacyproducts.sale.SaleDto;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
+import com.example.pricepharmacyproducts.product.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,10 +18,12 @@ public class PharmacyController {
 
     private final PharmacyService pharmacyService;
     private final PharmacyMapper pharmacyMapper;
+    private final ProductService productService;
 
-    public PharmacyController(PharmacyService pharmacyService, PharmacyMapper pharmacyMapper) {
+    public PharmacyController(PharmacyService pharmacyService, PharmacyMapper pharmacyMapper, ProductService productService) {
         this.pharmacyService = pharmacyService;
         this.pharmacyMapper = pharmacyMapper;
+        this.productService = productService;
     }
 
     @GetMapping("/newPharmacy")
@@ -59,7 +56,9 @@ public class PharmacyController {
     }
     @GetMapping("/edit/{id}")
     public String editPharmacyForm(@PathVariable Integer id, Model model){
+        List<Product> products = productService.findAllProducts();
         model.addAttribute("pharmacyDto",pharmacyService.findPharmacyById(id));
+        model.addAttribute("products",products);
         return "edit_pharmacy";
     }
     @PostMapping("/{id}")

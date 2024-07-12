@@ -38,8 +38,8 @@
                                 <p class="card-text">Name: <span th:text="${sale.getPharmacy().getName()}"></span></p>
                                 <p class="card-text">Web Address: <span th:text="${sale.getPharmacy().getWebAddress()}"></span></p>
                                 <p class="card-text">City: <span th:text="${sale.getPharmacy().getCity()}"></span></p>
-                                <p class="card-text">ShippingFees: <span th:text="${sale.getPharmacy().getShippingFees()}"></span></p>
-                                <p class="card-text">FreeShipping: <span th:text="${sale.getPharmacy().getFreeShipping()}"></span></p>
+                                <p class="card-text">ShippingFees: <span th:text="${sale.getPharmacy().getShippingFees()} +'€'"></span></p>
+                                <p class="card-text">FreeShipping: <span th:text="${sale.getPharmacy().getFreeShipping()} +'€'"></span></p>
                             </div>
                         </div>
                     </div>
@@ -62,8 +62,8 @@
                     </div>
                 </div>
             </td>
-            <td th:text = "${sale.getPrice()}"></td>
-            <td th:text = "${sale.getQuantity()}"></td>
+            <td th:text = "${sale.getPrice()} +'€'"></td>
+            <td th:text = "${sale.getQuantity()} +'€'"></td>
         </tr>
         </tbody>
     </table>

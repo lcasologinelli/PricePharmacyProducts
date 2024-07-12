@@ -2,6 +2,7 @@ package com.example.pricepharmacyproducts.simplex;
 
 import com.example.pricepharmacyproducts.order.Order;
 import com.example.pricepharmacyproducts.order.OrderService;
+import com.example.pricepharmacyproducts.pharmacy.PharmacyDto;
 import com.example.pricepharmacyproducts.pharmacy.PharmacyMapper;
 import com.example.pricepharmacyproducts.pharmacy.PharmacyService;
 import com.example.pricepharmacyproducts.product.ProductService;
@@ -249,6 +250,14 @@ public class BestPharmacyService {
 
             List<Sale> comparableSales = pharmacyUtility.extractSalesFromProductPharmacyEntries(ids);
 
+            List<AggregatedPharmacyDto> aggregatedPharmacyDtos = pharmacyUtility.aggregatePharmacies(comparableResult);
+
+            System.out.println("Aggregated:");
+            for(AggregatedPharmacyDto pri: aggregatedPharmacyDtos) {
+                System.out.println(pri);
+                System.out.println();
+            }
+
             SimplexDto min;
 
             for(SimplexDto result :comparableResult){
@@ -257,13 +266,59 @@ public class BestPharmacyService {
                     if(Objects.equals(result.getProduct().getProduct_id(), sale.getId().getProduct_id()) &&
                             result.getQuantity()*sale.getPrice() < result.getQuantity()*result.getCost()+ result.getShippingFees()
                             )
-                        min = new SimplexDto(pharmacyMapper.toDto(sale.getPharmacy()), sale.getProduct(), result.getQuantity(),sale.getPrice(),0);
+                        min = new SimplexDto(pharmacyMapper.toDto(sale.getPharmacy()), sale.getProduct(), result.getQuantity(),result.getQuantity()*sale.getPrice(),0);
                 bestSolution.add(min);
             }
-            return bestSolution;
+
+            List<SimplexDto> finalSolution = pharmacyUtility.updateSimplexDtosWithAggregates(aggregatedPharmacyDtos,bestSolution);
+
+            for (SimplexDto simplexDto: finalSolution)
+                System.out.println(simplexDto);
+
+            return finalSolution;
        }
 
         return null;
     }
 
+    public List<PharmacyShippingFeesDto> calculateShippingFees(List<SimplexDto> bestPharmacy) {
+        // Lista di ritorno
+        List<PharmacyShippingFeesDto> pharmacyShippingFeesList = new ArrayList<>();
+
+        // Insieme per tracciare gli ID delle farmacie già aggiunte
+        Set<Integer> pharmacyIds = new HashSet<>();
+
+        // Iteriamo sulla lista di SimplexDto
+        for (SimplexDto simplexDto : bestPharmacy) {
+            PharmacyDto pharmacy = simplexDto.getPharmacy();
+
+            // Controlliamo se l'ID della farmacia è già presente nell'insieme
+            if (!pharmacyIds.contains(pharmacy.getId())) {
+                // Aggiungiamo l'ID della farmacia all'insieme
+                pharmacyIds.add(pharmacy.getId());
+
+                // Creiamo un nuovo PharmacyShippingFeesDto
+                PharmacyShippingFeesDto pharmacyShippingFeesDto = new PharmacyShippingFeesDto();
+                pharmacyShippingFeesDto.setPharmacy(pharmacy);
+                pharmacyShippingFeesDto.setShippingFees(simplexDto.getShippingFees());
+
+                // Aggiungiamo il nuovo PharmacyShippingFeesDto alla lista di ritorno
+                pharmacyShippingFeesList.add(pharmacyShippingFeesDto);
+            }
+        }
+
+        return pharmacyShippingFeesList;
+    }
+
+    public Double calculateTotalCost(List<SimplexDto> bestPharmacy, List<PharmacyShippingFeesDto> pharmacyShipping) {
+        double totalCost = 0;
+        for(SimplexDto dto: bestPharmacy){
+            totalCost += dto.getCost();
+        }
+        for (PharmacyShippingFeesDto pharmacy : pharmacyShipping ){
+            totalCost += pharmacy.getShippingFees();
+        }
+
+        return totalCost;
+    }
 }

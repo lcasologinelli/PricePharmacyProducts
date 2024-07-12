@@ -47,7 +47,7 @@
                                 <tr th:each="sale : ${order.saleList}">
                                     <td th:text="${sale.product.product_id}"></td>
                                     <td th:text="${sale.pharmacy.pharmacy_id}"></td>
-                                    <td th:text="${sale.price}"></td>
+                                    <td th:text="${sale.price} +'€'"></td>
                                     <td th:text="${sale.quantity}"></td>
                                 </tr>
                                 </tbody>

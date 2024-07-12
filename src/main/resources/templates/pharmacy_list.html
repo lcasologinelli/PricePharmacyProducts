@@ -42,8 +42,8 @@
             <td th:text = "${pharmacy.name}"></td>
             <td th:text = "${pharmacy.webAddress}"></td>
             <td th:text = "${pharmacy.city}"></td>
-            <td th:text = "${pharmacy.shippingFees}"></td>
-            <td th:text = "${pharmacy.freeShipping}"></td>
+            <td th:text = "${pharmacy.shippingFees} +'€'"></td>
+            <td th:text = "${pharmacy.freeShipping} +'€'"></td>
             <td>
                 <p class="d-inline-flex gap-1">
                     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapseId'+${pharmacy.id}" aria-expanded="false" th:aria-controls="'collapseId'+${pharmacy.id}">
@@ -57,8 +57,8 @@
                                 <div class="card mb-2">
                                     <div class="card-body">
                                         <p class="card-text">Product ID: <span th:text="${sale.product_id}"></span></p>
-                                        <p class="card-text">Price: <span th:text="${sale.price}"></span></p>
-                                        <p class="card-text">Quantity: <span th:text="${sale.quantity}"></span></p>
+                                        <p class="card-text">Price: <span th:text="${sale.price} +'€'"></span></p>
+                                        <p class="card-text">Quantity: <span th:text="${sale.quantity} +'€'"></span></p>
                                     </div>
                                 </div>
                             </div>

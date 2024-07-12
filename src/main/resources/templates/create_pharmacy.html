@@ -28,11 +28,11 @@
                         <input type="text" class="form-control" th:field="*{city}" id="city" name="city">
                     </div>
                     <div class="form-group">
-                        <label for="shippingFees">Shipping Fees</label>
+                        <label for="shippingFees">Shipping Fees (€)</label>
                         <input type="number" class="form-control" th:field="*{shippingFees}" id="shippingFees" name="shippingFees" required>
                     </div>
                     <div class="form-group">
-                        <label for="freeShipping">Free Shipping</label>
+                        <label for="freeShipping">Free Shipping (€)</label>
                         <input type="number" class="form-control" th:field="*{freeShipping}" id="freeShipping" name="freeShipping">
                     </div>
 
@@ -47,7 +47,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="price_0">Price</label>
+                                <label for="price_0">Price (€)</label>
                                 <input type="number" class="form-control" step="0.01" id="price_0" name="sales[0].price" required>
                             </div>
                             <div class="form-group">

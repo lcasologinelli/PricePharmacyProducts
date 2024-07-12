@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SaleDto{
         Integer product_id;
+        String name;
         Float price;
         Integer quantity;
 }
