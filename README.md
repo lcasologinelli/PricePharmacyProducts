@@ -63,7 +63,7 @@ L'API può essere utilizzata sia via Docker, sia attraverso la configurazione ma
 1. Installa PostgreSQL e crea un nuovo database:
 
     ```sql
-    CREATE DATABASE pharmacydb;
+    CREATE DATABASE PharmacyDb;
     CREATE USER pharmacyuser WITH ENCRYPTED PASSWORD 'password';
     GRANT ALL PRIVILEGES ON DATABASE pharmacydb TO pharmacyuser;
     ```
@@ -71,9 +71,10 @@ L'API può essere utilizzata sia via Docker, sia attraverso la configurazione ma
 2. Modifica il file `application.properties` per configurare la connessione al database:
 
     ```properties
-    spring.datasource.url=jdbc:postgresql://localhost:5432/pharmacydb
-    spring.datasource.username=pharmacyuser
-    spring.datasource.password=password
+    datasource:
+      url: jdbc:postgresql://localhost:5432/PharmacyDb
+      username: postgres
+      password: admin
     ```
 
 #### Passaggi
