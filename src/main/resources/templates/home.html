@@ -35,6 +35,7 @@
             <th>Producer</th>
             <th>Category</th>
             <th>Dose</th>
+            <th>Range</th>
             <th>Select Product</th>
         </tr>
         </thead>
@@ -46,6 +47,7 @@
             <td th:text="${entry.key.getProducer()}"></td>
             <td th:text="${entry.key.getCategory()}"></td>
             <td th:text="${entry.key.getDose()}"></td>
+            <td th:text="${priceRanges[entry.key.getProduct_id()]}"></td>
             <td class="d-flex align-items-center">
                 <form th:action="@{/sales/insertIntoCart}" method="post">
                     <input type="hidden" name="product_id" th:value="${entry.key.getProduct_id()}"/>

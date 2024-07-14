@@ -3,8 +3,7 @@ package com.example.pricepharmacyproducts.sale;
 import com.example.pricepharmacyproducts.product.Product;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class SaleService {
@@ -92,4 +91,29 @@ public class SaleService {
         return foundSale;
     }
 
+
+    public Map<Integer, String> findPriceRangesForProducts(List<Product> products) {
+        Map<Integer, String> priceRanges = new HashMap<>();
+        for (Product product : products) {
+            List<Float> prices = findPricesByProductId(product.getProduct_id());
+            if (!prices.isEmpty()) {
+                float minPrice = Collections.min(prices);
+                float maxPrice = Collections.max(prices);
+                priceRanges.put(product.getProduct_id(), minPrice +"€" + " - " + maxPrice +"€");
+            } else {
+                priceRanges.put(product.getProduct_id(), "N/A");
+            }
+        }
+        return priceRanges;
+    }
+
+    private List<Float> findPricesByProductId(Integer productId) {
+        List<Sale> sales = findAllByProductId(productId);
+        List<Float> prices = new ArrayList<>();
+        for(Sale sale: sales) {
+                prices.add(sale.getPrice());
+        }
+        return  prices;
+
+    }
 }

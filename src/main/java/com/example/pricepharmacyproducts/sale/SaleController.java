@@ -50,10 +50,14 @@ public class SaleController {
             index++;
         }
 
+        Map<Integer, String> priceRanges = saleService.findPriceRangesForProducts(availableProducts);
+
+
         model.addAttribute("productMaxQuantityMap", productMaxQuantityMap);
         model.addAttribute("orderAdded", orderAdded);
         model.addAttribute("orderProductIds", orderService.getAllOrderProductIds());
         model.addAttribute("productQuantities", productQuantities);
+        model.addAttribute("priceRanges",priceRanges);
         return "home";
     }
 
