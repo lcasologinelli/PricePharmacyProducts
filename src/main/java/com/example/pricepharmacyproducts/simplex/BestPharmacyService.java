@@ -124,7 +124,7 @@ public class BestPharmacyService {
         for(int i = 0; i< n_pharmacies; i++){
             for(int j=0; j<n_products; j++){
                 if(product_cost[i][j] < Double.POSITIVE_INFINITY) {
-                    objective.setCoefficient(x[i][j], quantity[j] * product_cost[i][j]);
+                    objective.setCoefficient(x[i][j], quantity[j] * product_cost[i][j] + shipping_fees[i]);
                 }
             }
         }
