@@ -60,21 +60,15 @@ L'API può essere utilizzata sia via Docker, sia attraverso la configurazione ma
 
 #### Configurazione di PostgreSQL
 
-1. Installa PostgreSQL e crea un nuovo database:
-
-    ```sql
-    CREATE DATABASE PharmacyDb;
-    CREATE USER pharmacyuser WITH ENCRYPTED PASSWORD 'password';
-    GRANT ALL PRIVILEGES ON DATABASE pharmacydb TO pharmacyuser;
-    ```
+1. Installa PostgreSQL e crea un nuovo database, ricordandoti nome, username e password
 
 2. Modifica il file `application.properties` per configurare la connessione al database:
 
     ```properties
     datasource:
-      url: jdbc:postgresql://localhost:5432/PharmacyDb
-      username: postgres
-      password: admin
+      url: jdbc:postgresql://localhost:5432/tuo_database
+      username: tuo_username
+      password: tua_password
     ```
 
 #### Passaggi
