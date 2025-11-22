@@ -1,14 +1,26 @@
-# Usa un'immagine di base di OpenJDK
-FROM eclipse-temurin:17-jdk
-
-# Imposta il directory di lavoro
+# Stage 1: build del JAR
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
-# Copia il file JAR dell'applicazione nel container
-COPY target/PricePharmacyProducts-0.0.1-SNAPSHOT.jar app.jar
+# Copia Maven wrapper e pom.xml
+COPY pom.xml mvnw ./
+COPY .mvn .mvn
 
-# Esponi la porta su cui l'applicazione Spring Boot è in ascolto
+# Copia il codice sorgente
+COPY src src
+
+# Costruisci il JAR (senza test per velocizzare)
+RUN ./mvnw clean package -DskipTests
+
+# Stage 2: runtime
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+
+# Copia il JAR dal build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Esponi porta
 EXPOSE 8080
 
-# Comando per eseguire l'applicazione
+# Avvia l'app
 ENTRYPOINT ["java", "-jar", "app.jar"]
